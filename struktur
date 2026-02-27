@@ -1,0 +1,68 @@
+src/
+  app/
+    index.js              // entry express
+    routes.js             // central route loader
+
+    modules/
+      auth/
+        auth.controller.js
+        auth.service.js
+        auth.route.js
+
+      user/
+        user.controller.js
+        user.service.js
+        user.route.js
+
+      master_data/
+        rw/
+          rw.controller.js
+          rw.service.js
+          rw.route.js
+
+        rt/
+          rt.controller.js
+          rt.service.js
+          rt.route.js
+
+        roles/
+          role.controller.js
+          role.service.js
+          role.route.js
+
+        permission/
+          permission.controller.js
+          permission.service.js
+          permission.route.js
+
+        role_permission/
+          rolePermission.controller.js
+          rolePermission.service.js
+          rolePermission.route.js
+
+      resident/
+        resident.controller.js
+        resident.service.js
+        resident.route.js
+
+      family/
+        family.controller.js
+        family.service.js
+        family.route.js
+
+  config/
+    prisma.js
+    env.js
+
+  middlewares/
+    auth.middleware.js
+    role.middleware.js
+    error.middleware.js
+
+  utils/
+    hash.js
+    jwt.js
+    response.js
+
+prisma/
+  schema.prisma

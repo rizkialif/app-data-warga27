@@ -1,0 +1,204 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model family {
+  id         Int            @id @default(autoincrement())
+  no_kk      String         @unique(map: "no_kk") @db.VarChar(20)
+  alamat     String         @db.Text
+  rt_id      Int
+  status     family_status? @default(aktif)
+  created_at DateTime?      @default(now()) @db.Timestamp(0)
+  updated_at DateTime?      @default(now()) @db.Timestamp(0)
+  rt         rt             @relation(fields: [rt_id], references: [id], map: "fk_family_rt")
+  resident   resident[]
+
+  @@index([rt_id], map: "idx_family_rt")
+}
+
+model permissions {
+  code             String             @id @db.VarChar(100)
+  description      String?            @db.VarChar(255)
+  created_at       DateTime?          @default(now()) @db.Timestamp(0)
+  name             String             @db.VarChar(100)
+  role_permissions role_permissions[]
+}
+
+model resident {
+  id                    Int                            @id @default(autoincrement())
+  nik                   String                         @unique(map: "nik") @db.VarChar(20)
+  nama                  String                         @db.VarChar(100)
+  jenis_kelamin         resident_jenis_kelamin
+  tempat_lahir          String?                        @db.VarChar(100)
+  tanggal_lahir         DateTime?                      @db.Date
+  agama                 String?                        @db.VarChar(50)
+  pekerjaan             String?                        @db.VarChar(100)
+  status_perkawinan     resident_status_perkawinan?    @default(belum_kawin)
+  status_dalam_keluarga resident_status_dalam_keluarga
+  status_warga          resident_status_warga?         @default(aktif)
+  family_id             Int
+  created_at            DateTime?                      @default(now()) @db.Timestamp(0)
+  updated_at            DateTime?                      @default(now()) @db.Timestamp(0)
+  family                family                         @relation(fields: [family_id], references: [id], onDelete: Cascade, map: "fk_resident_family")
+  zakat_recipients      zakat_recipient[]
+  zakat_collections     zakat_collection[]
+
+  @@index([family_id], map: "idx_resident_family")
+}
+
+model role_permissions {
+  role_code       String      @db.VarChar(50)
+  permission_code String      @db.VarChar(100)
+  roles           roles       @relation(fields: [role_code], references: [code], onDelete: Cascade, onUpdate: Restrict, map: "role_permissions_ibfk_1")
+  permissions     permissions @relation(fields: [permission_code], references: [code], onDelete: Cascade, onUpdate: Restrict, map: "role_permissions_ibfk_2")
+
+  @@id([role_code, permission_code])
+  @@index([permission_code], map: "permission_code")
+}
+
+model roles {
+  code             String             @id @db.VarChar(50)
+  name             String             @db.VarChar(50)
+  description      String?            @db.VarChar(255)
+  created_at       DateTime?          @default(now()) @db.Timestamp(0)
+  role_permissions role_permissions[]
+  users            users[]
+}
+
+model rt {
+  id         Int       @id @default(autoincrement())
+  nomor      Int
+  rw_id      Int
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @default(now()) @db.Timestamp(0)
+  family     family[]
+  rw         rw        @relation(fields: [rw_id], references: [id], onDelete: Cascade, map: "fk_rt_rw")
+  users      users[]
+
+  @@index([rw_id], map: "idx_rt_rw")
+}
+
+model rw {
+  id         Int       @id @default(autoincrement())
+  nomor      Int
+  nama       String?   @db.VarChar(100)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @default(now()) @db.Timestamp(0)
+  rt         rt[]
+  users      users[]
+}
+
+model users {
+  id           Int            @id @default(autoincrement())
+  nama         String         @db.VarChar(100)
+  username     String         @unique(map: "username") @db.VarChar(50)
+  email        String         @unique(map: "email") @db.VarChar(100)
+  password     String         @db.VarChar(255)
+  role_code    String         @db.VarChar(50)
+  rw_id        Int?
+  rt_id        Int?
+  status       users_status?  @default(aktif)
+  last_login   DateTime?      @db.Timestamp(0)
+  created_at   DateTime?      @default(now()) @db.Timestamp(0)
+  updated_at   DateTime?      @default(now()) @db.Timestamp(0)
+  refreshtoken refreshtoken[]
+  roles        roles              @relation(fields: [role_code], references: [code], onUpdate: Restrict, map: "users_ibfk_1")
+  rw           rw?                @relation(fields: [rw_id], references: [id], onUpdate: Restrict, map: "users_ibfk_2")
+  rt           rt?                @relation(fields: [rt_id], references: [id], onUpdate: Restrict, map: "users_ibfk_3")
+
+  @@index([role_code], map: "idx_users_role")
+  @@index([rt_id], map: "rt_id")
+  @@index([rw_id], map: "rw_id")
+}
+
+model refreshtoken {
+  id         Int      @id @default(autoincrement())
+  token      String   @unique(map: "RefreshToken_token_key")
+  user_id    Int
+  created_at DateTime @default(now())
+  expires_at DateTime
+  users      users    @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "RefreshToken_user_id_fkey")
+
+  @@index([user_id], map: "RefreshToken_user_id_idx")
+}
+
+enum resident_jenis_kelamin {
+  L
+  P
+}
+
+enum family_status {
+  aktif
+  pindah
+  nonaktif
+}
+
+enum users_status {
+  aktif
+  nonaktif
+}
+
+enum resident_status_perkawinan {
+  belum_kawin
+  kawin
+  cerai
+}
+
+enum resident_status_dalam_keluarga {
+  kepala_keluarga
+  istri
+  anak
+  lainnya
+}
+
+enum resident_status_warga {
+  aktif
+  pindah
+  meninggal
+}
+
+model zakat_recipient {
+  id          Int                       @id @default(autoincrement())
+  resident_id Int
+  kategori    zakat_kategori
+  created_at  DateTime?                 @default(now()) @db.Timestamp(0)
+  updated_at  DateTime?                 @default(now()) @db.Timestamp(0)
+  resident    resident                  @relation(fields: [resident_id], references: [id], onDelete: Cascade)
+
+  @@index([resident_id], map: "idx_zakat_recipient_resident")
+}
+
+model zakat_collection {
+  id                    Int                       @id @default(autoincrement())
+  resident_id           Int
+  nama_petugas          String?                   @db.VarChar(100)
+  jenis_zakat           zakat_jenis
+  jumlah_bayar          Decimal                   @db.Decimal(15, 2)
+  nama_keluarga_dibayar String?                   @db.Text
+  created_at            DateTime?                 @default(now()) @db.Timestamp(0)
+  updated_at            DateTime?                 @default(now()) @db.Timestamp(0)
+  resident              resident                  @relation(fields: [resident_id], references: [id], onDelete: Cascade)
+
+  @@index([resident_id], map: "idx_zakat_collection_resident")
+}
+
+enum zakat_kategori {
+  fakir
+  miskin
+  amil
+  mualaf
+  riqab
+  gharim
+  fisabilillah
+  ibnusabil
+}
+
+enum zakat_jenis {
+  uang
+  beras
+}
