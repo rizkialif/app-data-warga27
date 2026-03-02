@@ -66,9 +66,8 @@ export default function RtPage() {
     setEditingItem(item);
     if (item) {
       form.setFieldsValue({
-        nomor: item.nomor,
         rw_id: item.rw_id,
-        nomor_list: [],
+        nomor_list: item.rts ? item.rts.map(rt => rt.nomor) : [],
       });
     } else {
       form.resetFields();
@@ -86,7 +85,7 @@ export default function RtPage() {
   const onFinish = async (values) => {
     try {
       if (editingItem) {
-        await api.put(`/api/master-data/rt/update?id=${editingItem.id}`, values);
+        await api.post(`/api/master-data/rt/sync`, values);
       } else {
         await api.post('/api/master-data/rt', values);
       }
@@ -104,15 +103,18 @@ export default function RtPage() {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (record) => {
     try {
-      await api.delete(`/api/master-data/rt/delete?id=${id}`);
+      if (record.rts && record.rts.length > 0) {
+        const deletePromises = record.rts.map(rt => api.delete(`/api/master-data/rt/delete?id=${rt.id}`));
+        await Promise.all(deletePromises);
+      }
       notification.success({ message: 'Data Berhasil Dihapus' });
       fetchRts();
     } catch (error) {
       notification.error({ 
         message: 'Gagal menghapus data', 
-        description: error.response?.data?.message || 'Terjadi kesalahan saat menghapus' 
+        description: error.response?.data?.message || 'Ada RT yang tidak bisa dihapus karena telah mempunyai data warganya' 
       });
     }
   };
@@ -143,53 +145,49 @@ export default function RtPage() {
       sorter: (a, b) => a.rw_nomor - b.rw_nomor,
     },
     {
-      title: 'Daftar RT',
+      title: 'RT',
       key: 'rts',
       render: (_, record) => {
         const sortedRts = [...record.rts].sort((a, b) => a.nomor - b.nomor);
         return (
-          <Space wrap>
-            {sortedRts.map(rt => (
-               <div 
-                key={rt.id} 
-                style={{ 
-                  display: 'inline-flex', 
-                  alignItems: 'center', 
-                  background: '#e6f4ff', 
-                  border: '1px solid #91caff', 
-                  borderRadius: '6px', 
-                  padding: '4px 8px',
-                  marginBottom: '4px'
-                }}
-              >
-                <span style={{ fontWeight: '500', color: '#1677ff', marginRight: '6px' }}>
-                  RT {String(rt.nomor).padStart(2, '0')}
-                </span>
-                <Space size={4}>
-                  {canUpdate && (
-                    <EditOutlined 
-                      style={{ color: '#1677ff', cursor: 'pointer', fontSize: '12px' }} 
-                      onClick={() => handleOpenModal(rt)}
-                    />
-                  )}
-                  {canDelete && (
-                    <Popconfirm
-                      title="Hapus RT?"
-                      description={`Yakin menghapus RT ${String(rt.nomor).padStart(2, '0')} dari RW ${String(record.rw_nomor).padStart(2, '0')}?`}
-                      onConfirm={() => handleDelete(rt.id)}
-                      okText="Ya"
-                      cancelText="Tidak"
-                      okButtonProps={{ danger: true }}
-                    >
-                      <DeleteOutlined style={{ color: '#ff4d4f', cursor: 'pointer', fontSize: '12px' }} />
-                    </Popconfirm>
-                  )}
-                </Space>
-              </div>
-            ))}
-          </Space>
+          <Text>
+            {sortedRts.map(rt => `RT ${String(rt.nomor).padStart(2, '0')}`).join(', ')}
+          </Text>
         );
       },
+    },
+    {
+      title: 'Aksi',
+      key: 'action',
+      align: 'center',
+      width: 150,
+      render: (_, record) => (
+        <Space size="middle">
+          {canUpdate && (
+            <Button 
+              type="text" 
+              icon={<EditOutlined style={{ color: '#1677ff' }} />} 
+              onClick={() => handleOpenModal(record)}
+            />
+          )}
+          {canDelete && (
+            <Popconfirm
+              title="Hapus data?"
+              description={`Apakah Anda yakin ingin menghapus semua RT di RW ${String(record.rw_nomor).padStart(2, '0')}?`}
+              onConfirm={() => handleDelete(record)}
+              okText="Ya"
+              cancelText="Tidak"
+              okButtonProps={{ danger: true }}
+            >
+              <Button 
+                type="text" 
+                danger 
+                icon={<DeleteOutlined />} 
+              />
+            </Popconfirm>
+          )}
+        </Space>
+      ),
     },
   ];
 
@@ -255,7 +253,7 @@ export default function RtPage() {
             name="rw_id"
             rules={[{ required: true, message: 'Silakan pilih RW!' }]}
           >
-            <Select placeholder="Pilih RW" size="large" showSearch optionFilterProp="children">
+            <Select placeholder="Pilih RW" size="large" showSearch optionFilterProp="children" disabled={!!editingItem}>
               {rwOptions.map(rw => (
                 <Select.Option key={rw.id} value={rw.id}>
                   RW {String(rw.nomor).padStart(2, '0')} {rw.nama ? `- ${rw.nama}` : ''}
@@ -264,31 +262,21 @@ export default function RtPage() {
             </Select>
           </Form.Item>
 
-          {editingItem ? (
-            <Form.Item
-              label="Nomor RT"
-              name="nomor"
-              rules={[{ required: true, message: 'Silakan masukkan nomor RT!' }]}
-            >
-              <Input type="number" placeholder="Contoh: 1" size="large" />
-            </Form.Item>
-          ) : (
-            <Form.Item
-              label="Pilih Nomor RT (Bisa lebih dari 1)"
-              name="nomor_list"
-              rules={[{ required: true, message: 'Silakan pilih minimal 1 nomor RT!' }]}
-            >
-              <Checkbox.Group disabled={!selectedRwId}>
-                <Space wrap>
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
-                    <Checkbox key={num} value={num}>
-                      RT {num}
-                    </Checkbox>
-                  ))}
-                </Space>
-              </Checkbox.Group>
-            </Form.Item>
-          )}
+          <Form.Item
+            label="Pilih Nomor RT (Bisa lebih dari 1)"
+            name="nomor_list"
+            rules={[{ required: true, message: 'Silakan pilih minimal 1 nomor RT!' }]}
+          >
+            <Checkbox.Group disabled={!selectedRwId}>
+              <Space wrap>
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map(num => (
+                  <Checkbox key={num} value={num}>
+                    RT {num}
+                  </Checkbox>
+                ))}
+              </Space>
+            </Checkbox.Group>
+          </Form.Item>
 
           <Form.Item style={{ marginBottom: 0, marginTop: 32, textAlign: 'right' }}>
             <Space>
