@@ -79,6 +79,7 @@ model rt {
   family     family[]
   rw         rw        @relation(fields: [rw_id], references: [id], onDelete: Cascade, map: "fk_rt_rw")
   users      users[]
+  ketua_rt   ketua_rt?
 
   @@index([rw_id], map: "idx_rt_rw")
 }
@@ -91,6 +92,7 @@ model rw {
   updated_at DateTime? @default(now()) @db.Timestamp(0)
   rt         rt[]
   users      users[]
+  ketua_rw   ketua_rw?
 }
 
 model users {
@@ -201,4 +203,22 @@ enum zakat_kategori {
 enum zakat_jenis {
   uang
   beras
+}
+
+model ketua_rt {
+  id         Int       @id @default(autoincrement())
+  rt_id      Int       @unique(map: "idx_ketua_rt_id")
+  nama       String    @db.VarChar(100)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @default(now()) @db.Timestamp(0)
+  rt         rt        @relation(fields: [rt_id], references: [id], onDelete: Cascade)
+}
+
+model ketua_rw {
+  id         Int       @id @default(autoincrement())
+  rw_id      Int       @unique(map: "idx_ketua_rw_id")
+  nama       String    @db.VarChar(100)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @default(now()) @db.Timestamp(0)
+  rw         rw        @relation(fields: [rw_id], references: [id], onDelete: Cascade)
 }

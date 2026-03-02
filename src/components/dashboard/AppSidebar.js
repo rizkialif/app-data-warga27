@@ -74,6 +74,14 @@ const AppSidebar = ({ collapsed, onCollapse }) => {
           key: '/dashboard/rw',
           label: <Link href="/dashboard/rw">Data RW</Link>,
         },
+        hasMenuPermission(userPermissions, 'menu:rt') && {
+          key: '/dashboard/ketua-rt',
+          label: <Link href="/dashboard/ketua-rt">Data Ketua RT</Link>,
+        },
+        hasMenuPermission(userPermissions, 'menu:rw') && {
+          key: '/dashboard/ketua-rw',
+          label: <Link href="/dashboard/ketua-rw">Data Ketua RW</Link>,
+        },
         hasMenuPermission(userPermissions, 'menu:roles') && {
           key: '/dashboard/roles',
           label: <Link href="/dashboard/roles">Data Roles</Link>,
