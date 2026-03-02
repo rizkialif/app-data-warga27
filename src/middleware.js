@@ -5,7 +5,7 @@ export async function middleware(request) {
   const { pathname } = request.nextUrl
 
   // Define paths that require authentication
-  const protectedApiPaths = ['/api/master-data', '/api/users', '/api/family', '/api/resident', '/api/stats', '/api/zakat']
+  const protectedApiPaths = ['/api/master-data', '/api/users', '/api/family', '/api/resident', '/api/stats', '/api/zakat', '/api/pengurus']
   const protectedPagePaths = ['/dashboard']
 
   const isProtectedApi = protectedApiPaths.some(path => pathname.startsWith(path))
