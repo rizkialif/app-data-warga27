@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { 
   Button, 
   Modal, 
@@ -123,73 +123,102 @@ export default function RtPage() {
 
   const columns = [
     {
-      title: 'Nomor RT',
-      dataIndex: 'nomor',
-      key: 'nomor',
-      render: (text) => (
-        <Tag color="processing" style={{ fontWeight: 'bold', padding: '4px 12px', borderRadius: '12px' }}>
-          RT {String(text).padStart(2, '0')}
-        </Tag>
-      ),
-      sorter: (a, b) => a.nomor - b.nomor,
-    },
-    {
       title: 'RW',
-      dataIndex: ['rw', 'nomor'],
+      dataIndex: 'rw_nomor',
       key: 'rw_nomor',
+      width: 200,
       render: (text, record) => (
         <div>
-          <Text strong>RW {String(text || record.rw_id).padStart(2, '0')}</Text>
-          <br />
-          <Text type="secondary" style={{ fontSize: '11px' }}>
-            WILAYAH {record.rw?.nama || 'UTAMA'}
-          </Text>
+          <Text strong>RW {String(text).padStart(2, '0')}</Text>
+          {record.rw_nama && (
+            <>
+              <br />
+              <Text type="secondary" style={{ fontSize: '11px' }}>
+                WILAYAH {record.rw_nama.toUpperCase()}
+              </Text>
+            </>
+          )}
         </div>
       ),
-      sorter: (a, b) => (a.rw?.nomor || 0) - (b.rw?.nomor || 0),
+      sorter: (a, b) => a.rw_nomor - b.rw_nomor,
     },
     {
-      title: 'Aksi',
-      key: 'action',
-      align: 'center',
-      width: 150,
-      render: (_, record) => (
-        <Space size="middle">
-          {canUpdate && (
-            <Button 
-              type="text" 
-              icon={<EditOutlined style={{ color: '#1677ff' }} />} 
-              onClick={() => handleOpenModal(record)}
-            />
-          )}
-          {canDelete && (
-            <Popconfirm
-              title="Hapus data?"
-              description="Apakah Anda yakin ingin menghapus RT ini?"
-              onConfirm={() => handleDelete(record.id)}
-              okText="Ya"
-              cancelText="Tidak"
-              okButtonProps={{ danger: true }}
-            >
-              <Button 
-                type="text" 
-                danger 
-                icon={<DeleteOutlined />} 
-              />
-            </Popconfirm>
-          )}
-        </Space>
-      ),
+      title: 'Daftar RT',
+      key: 'rts',
+      render: (_, record) => {
+        const sortedRts = [...record.rts].sort((a, b) => a.nomor - b.nomor);
+        return (
+          <Space wrap>
+            {sortedRts.map(rt => (
+               <div 
+                key={rt.id} 
+                style={{ 
+                  display: 'inline-flex', 
+                  alignItems: 'center', 
+                  background: '#e6f4ff', 
+                  border: '1px solid #91caff', 
+                  borderRadius: '6px', 
+                  padding: '4px 8px',
+                  marginBottom: '4px'
+                }}
+              >
+                <span style={{ fontWeight: '500', color: '#1677ff', marginRight: '6px' }}>
+                  RT {String(rt.nomor).padStart(2, '0')}
+                </span>
+                <Space size={4}>
+                  {canUpdate && (
+                    <EditOutlined 
+                      style={{ color: '#1677ff', cursor: 'pointer', fontSize: '12px' }} 
+                      onClick={() => handleOpenModal(rt)}
+                    />
+                  )}
+                  {canDelete && (
+                    <Popconfirm
+                      title="Hapus RT?"
+                      description={`Yakin menghapus RT ${String(rt.nomor).padStart(2, '0')} dari RW ${String(record.rw_nomor).padStart(2, '0')}?`}
+                      onConfirm={() => handleDelete(rt.id)}
+                      okText="Ya"
+                      cancelText="Tidak"
+                      okButtonProps={{ danger: true }}
+                    >
+                      <DeleteOutlined style={{ color: '#ff4d4f', cursor: 'pointer', fontSize: '12px' }} />
+                    </Popconfirm>
+                  )}
+                </Space>
+              </div>
+            ))}
+          </Space>
+        );
+      },
     },
   ];
 
-  const filteredData = data.filter(item => 
-    String(item.nomor).toLowerCase().includes(searchText.toLowerCase())
-  );
+  const groupedData = useMemo(() => {
+    const groups = {};
+    data.forEach(item => {
+      const rwId = item.rw_id;
+      if (!groups[rwId]) {
+        groups[rwId] = {
+          key: rwId,
+          rw_id: rwId,
+          rw_nomor: item.rw?.nomor || 0,
+          rw_nama: item.rw?.nama || 'UTAMA',
+          rts: []
+        };
+      }
+      groups[rwId].rts.push(item);
+    });
+    return Object.values(groups).sort((a, b) => a.rw_nomor - b.rw_nomor);
+  }, [data]);
 
-  const tableColumns = (canUpdate || canDelete) 
-    ? [...columns] 
-    : columns.filter(col => col.key !== 'action');
+  const filteredData = groupedData.filter(group => {
+    const searchLower = searchText.toLowerCase();
+    return String(group.rw_nomor).toLowerCase().includes(searchLower) ||
+      (group.rw_nama && group.rw_nama.toLowerCase().includes(searchLower)) ||
+      group.rts.some(rt => String(rt.nomor).toLowerCase().includes(searchLower));
+  });
+
+  const tableColumns = columns;
 
   if (!mounted) return null;
 
