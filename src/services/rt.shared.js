@@ -24,6 +24,17 @@ export const getRtById = async (id) => {
 }
 
 export const createRt = async (data) => {
+  if (data.nomor_list && Array.isArray(data.nomor_list)) {
+    const records = data.nomor_list.map(num => ({
+      nomor: Number(num),
+      rw_id: Number(data.rw_id)
+    }));
+    return await prisma.rt.createMany({
+      data: records,
+      skipDuplicates: true
+    });
+  }
+
   return await prisma.rt.create({
     data: {
       nomor: Number(data.nomor),

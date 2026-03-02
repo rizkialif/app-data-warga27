@@ -10,7 +10,9 @@ import {
   Space, 
   Popconfirm,
   Tag,
-  Typography
+  Typography,
+  Select,
+  Checkbox
 } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import api from '@/lib/api';
@@ -43,9 +45,21 @@ export default function RtPage() {
     }
   };
 
+  const [rwOptions, setRwOptions] = useState([]);
+
+  const fetchRws = async () => {
+    try {
+      const res = await api.get('/api/master-data/rw');
+      setRwOptions(res.data.data || []);
+    } catch (error) {
+      console.error('Failed to fetch RWs', error);
+    }
+  };
+
   useEffect(() => {
     setMounted(true);
     fetchRts();
+    fetchRws();
   }, []);
 
   const handleOpenModal = (item = null) => {
@@ -54,12 +68,15 @@ export default function RtPage() {
       form.setFieldsValue({
         nomor: item.nomor,
         rw_id: item.rw_id,
+        nomor_list: [],
       });
     } else {
       form.resetFields();
     }
     setIsModalOpen(true);
   };
+
+  const selectedRwId = Form.useWatch('rw_id', form);
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -205,20 +222,44 @@ export default function RtPage() {
           style={{ marginTop: 24 }}
         >
           <Form.Item
-            label="Nomor RT"
-            name="nomor"
-            rules={[{ required: true, message: 'Silakan masukkan nomor RT!' }]}
-          >
-            <Input type="number" placeholder="Contoh: 1" size="large" />
-          </Form.Item>
-
-          <Form.Item
             label="ID RW Pengampu"
             name="rw_id"
-            rules={[{ required: true, message: 'Silakan masukkan ID RW!' }]}
+            rules={[{ required: true, message: 'Silakan pilih RW!' }]}
           >
-            <Input type="number" placeholder="Contoh: 10" size="large" />
+            <Select placeholder="Pilih RW" size="large" showSearch optionFilterProp="children">
+              {rwOptions.map(rw => (
+                <Select.Option key={rw.id} value={rw.id}>
+                  RW {String(rw.nomor).padStart(2, '0')} {rw.nama ? `- ${rw.nama}` : ''}
+                </Select.Option>
+              ))}
+            </Select>
           </Form.Item>
+
+          {editingItem ? (
+            <Form.Item
+              label="Nomor RT"
+              name="nomor"
+              rules={[{ required: true, message: 'Silakan masukkan nomor RT!' }]}
+            >
+              <Input type="number" placeholder="Contoh: 1" size="large" />
+            </Form.Item>
+          ) : (
+            <Form.Item
+              label="Pilih Nomor RT (Bisa lebih dari 1)"
+              name="nomor_list"
+              rules={[{ required: true, message: 'Silakan pilih minimal 1 nomor RT!' }]}
+            >
+              <Checkbox.Group disabled={!selectedRwId}>
+                <Space wrap>
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
+                    <Checkbox key={num} value={num}>
+                      RT {num}
+                    </Checkbox>
+                  ))}
+                </Space>
+              </Checkbox.Group>
+            </Form.Item>
+          )}
 
           <Form.Item style={{ marginBottom: 0, marginTop: 32, textAlign: 'right' }}>
             <Space>
