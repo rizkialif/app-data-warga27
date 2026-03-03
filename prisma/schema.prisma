@@ -109,9 +109,9 @@ model users {
   created_at   DateTime?      @default(now()) @db.Timestamp(0)
   updated_at   DateTime?      @default(now()) @db.Timestamp(0)
   refreshtoken refreshtoken[]
-  roles        roles              @relation(fields: [role_code], references: [code], onUpdate: Restrict, map: "users_ibfk_1")
-  rw           rw?                @relation(fields: [rw_id], references: [id], onUpdate: Restrict, map: "users_ibfk_2")
-  rt           rt?                @relation(fields: [rt_id], references: [id], onUpdate: Restrict, map: "users_ibfk_3")
+  roles        roles          @relation(fields: [role_code], references: [code], onUpdate: Restrict, map: "users_ibfk_1")
+  rw           rw?            @relation(fields: [rw_id], references: [id], onUpdate: Restrict, map: "users_ibfk_2")
+  rt           rt?            @relation(fields: [rt_id], references: [id], onUpdate: Restrict, map: "users_ibfk_3")
 
   @@index([role_code], map: "idx_users_role")
   @@index([rt_id], map: "rt_id")
@@ -165,26 +165,26 @@ enum resident_status_warga {
 }
 
 model zakat_recipient {
-  id          Int                       @id @default(autoincrement())
+  id          Int            @id @default(autoincrement())
   resident_id Int
   kategori    zakat_kategori
-  created_at  DateTime?                 @default(now()) @db.Timestamp(0)
-  updated_at  DateTime?                 @default(now()) @db.Timestamp(0)
-  resident    resident                  @relation(fields: [resident_id], references: [id], onDelete: Cascade)
+  created_at  DateTime?      @default(now()) @db.Timestamp(0)
+  updated_at  DateTime?      @default(now()) @db.Timestamp(0)
+  resident    resident       @relation(fields: [resident_id], references: [id], onDelete: Cascade)
 
   @@index([resident_id], map: "idx_zakat_recipient_resident")
 }
 
 model zakat_collection {
-  id                    Int                       @id @default(autoincrement())
+  id                    Int         @id @default(autoincrement())
   resident_id           Int
-  nama_petugas          String?                   @db.VarChar(100)
+  nama_petugas          String?     @db.VarChar(100)
   jenis_zakat           zakat_jenis
-  jumlah_bayar          Decimal                   @db.Decimal(15, 2)
-  nama_keluarga_dibayar String?                   @db.Text
-  created_at            DateTime?                 @default(now()) @db.Timestamp(0)
-  updated_at            DateTime?                 @default(now()) @db.Timestamp(0)
-  resident              resident                  @relation(fields: [resident_id], references: [id], onDelete: Cascade)
+  jumlah_bayar          Decimal     @db.Decimal(15, 2)
+  nama_keluarga_dibayar String?     @db.Text
+  created_at            DateTime?   @default(now()) @db.Timestamp(0)
+  updated_at            DateTime?   @default(now()) @db.Timestamp(0)
+  resident              resident    @relation(fields: [resident_id], references: [id], onDelete: Cascade)
 
   @@index([resident_id], map: "idx_zakat_collection_resident")
 }
