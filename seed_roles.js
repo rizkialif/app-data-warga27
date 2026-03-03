@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 const defaultMenus = [
   'menu:master-data', 'menu:rt', 'menu:rw', 'menu:roles', 'menu:permissions',
   'menu:resident-data', 'menu:family', 'menu:warga', 'menu:users',
-  'menu:zakat' // Adding Zakat menu explicitly
+  'menu:zakat', 'menu:ketua-rt', 'menu:ketua-rw' // Adding Zakat and Ketua RT/RW menu explicitly
 ];
 
 const allPermissionsDict = [
@@ -12,6 +12,8 @@ const allPermissionsDict = [
   { code: 'menu:master-data', name: 'Menu Master Data', description: 'Akses menu Master Data' },
   { code: 'menu:rt', name: 'Menu Data RT', description: 'Akses view Data RT' },
   { code: 'menu:rw', name: 'Menu Data RW', description: 'Akses view Data RW' },
+  { code: 'menu:ketua-rt', name: 'Menu Data Ketua RT', description: 'Akses view Data Ketua RT' },
+  { code: 'menu:ketua-rw', name: 'Menu Data Ketua RW', description: 'Akses view Data Ketua RW' },
   { code: 'menu:roles', name: 'Menu Data Roles', description: 'Akses view Data Roles' },
   { code: 'menu:permissions', name: 'Menu Data Permissions', description: 'Akses view Data Permissions' },
   { code: 'menu:resident-data', name: 'Menu Resident Data', description: 'Akses menu Resident Data' },
@@ -50,25 +52,35 @@ const allPermissionsDict = [
 
 const rolesToSeed = [
   {
+    code: 'admin',
+    name: 'Administrator',
+    description: 'Bisa akses semua menu dan melakukan semua aksi (CRUD)',
+    permissions: allPermissionsDict.map(p => p.code)
+  },
+  {
     code: 'ketua_rt',
     name: 'Ketua RT',
-    description: 'Bisa view semua menu, tanpa CRUD',
+    description: 'Bisa view ketua rt/rw, dan CRUD warga/keluarga',
     permissions: [
-      'menu:master-data', 'menu:rt', 'menu:rw',
+      'menu:master-data', 'menu:ketua-rt', 'menu:ketua-rw',
       'menu:resident-data', 'menu:family', 'menu:warga',
-      'menu:users'
+      'menu:zakat',
+      'action:create:family', 'action:update:family', 'action:delete:family',
+      'action:create:warga', 'action:update:warga', 'action:delete:warga'
     ]
   },
   {
     code: 'ketua_rw',
     name: 'Ketua RW',
-    description: 'Bisa CRUD di master data RT, tapi view saja di RW',
+    description: 'Bisa view ketua rw dan penerima zakat, CRUD ketua rt, warga, dan keluarga',
     permissions: [
-      'menu:master-data', 'menu:rt', 'menu:rw',
+      'menu:master-data', 'menu:ketua-rt', 'menu:ketua-rw',
       'menu:resident-data', 'menu:family', 'menu:warga',
-      'menu:users',
-      // CRUD untuk RT
+      'menu:zakat',
+      // CRUD untuk RT, Warga, Keluarga
       'action:create:rt', 'action:update:rt', 'action:delete:rt',
+      'action:create:family', 'action:update:family', 'action:delete:family',
+      'action:create:warga', 'action:update:warga', 'action:delete:warga'
     ]
   },
   {
@@ -76,7 +88,7 @@ const rolesToSeed = [
     name: 'Panitia Zakat',
     description: 'CRUD di menu zakat, menu lain hanya view',
     permissions: [
-      'menu:master-data', 'menu:rt', 'menu:rw',
+      'menu:master-data', 'menu:rt', 'menu:rw', 'menu:ketua-rt', 'menu:ketua-rw',
       'menu:resident-data', 'menu:family', 'menu:warga',
       'menu:users',
       'menu:zakat',

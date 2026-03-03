@@ -60,6 +60,8 @@ const AppSidebar = ({ collapsed, onCollapse }) => {
     (hasMenuPermission(userPermissions, 'menu:master-data') || 
      hasMenuPermission(userPermissions, 'menu:rt') ||
      hasMenuPermission(userPermissions, 'menu:rw') ||
+     hasMenuPermission(userPermissions, 'menu:ketua-rt') ||
+     hasMenuPermission(userPermissions, 'menu:ketua-rw') ||
      hasMenuPermission(userPermissions, 'menu:roles') ||
      hasMenuPermission(userPermissions, 'menu:permissions')) && {
       key: 'master-data',
@@ -74,11 +76,11 @@ const AppSidebar = ({ collapsed, onCollapse }) => {
           key: '/dashboard/rw',
           label: <Link href="/dashboard/rw">Data RW</Link>,
         },
-        hasMenuPermission(userPermissions, 'menu:rt') && {
+        hasMenuPermission(userPermissions, 'menu:ketua-rt') && {
           key: '/dashboard/ketua-rt',
           label: <Link href="/dashboard/ketua-rt">Data Ketua RT</Link>,
         },
-        hasMenuPermission(userPermissions, 'menu:rw') && {
+        hasMenuPermission(userPermissions, 'menu:ketua-rw') && {
           key: '/dashboard/ketua-rw',
           label: <Link href="/dashboard/ketua-rw">Data Ketua RW</Link>,
         },
