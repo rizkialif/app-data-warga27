@@ -336,11 +336,13 @@ export default function FamilyPage() {
               name="no_kk"
               rules={[
                 { required: true, message: 'Masukkan nomor KK!' },
-                { min: 16, message: 'Nomor KK minimal 16 digit!' }
+                { pattern: /^[0-9]+$/, message: 'Nomor KK hanya boleh angka!' },
+                { max: 16, message: 'Nomor KK maksimal 16 digit!' }
               ]}
+              normalize={(value) => (value || '').replace(/[^0-9]/g, '')}
               style={{ gridColumn: 'span 2' }}
             >
-              <Input placeholder="Contoh: 327501XXXXXXXXXX" size="large" />
+              <Input placeholder="Contoh: 327501XXXXXXXXXX" size="large" maxLength={16} />
             </Form.Item>
 
             <Form.Item
@@ -349,9 +351,14 @@ export default function FamilyPage() {
               rules={[{ required: true, message: 'Pilih RW!' }]}
             >
               <Select 
+                showSearch
                 placeholder="Pilih RW" 
                 size="large"
                 onChange={() => form.setFieldValue('rt_id', null)}
+                filterOption={(input, option) => {
+                  const text = Array.isArray(option?.children) ? option.children.join('') : option?.children;
+                  return (text || '').toString().toLowerCase().includes(input.toLowerCase());
+                }}
               >
                 {rws.map(rw => (
                   <Option key={rw.id} value={rw.id}>RW {rw.nomor} - {rw.nama || 'UTAMA'}</Option>
@@ -365,9 +372,14 @@ export default function FamilyPage() {
               rules={[{ required: true, message: 'Pilih RT!' }]}
             >
               <Select 
+                showSearch
                 placeholder={selectedRwId ? "Pilih RT" : "Pilih RW dahulu"} 
                 size="large"
                 disabled={!selectedRwId}
+                filterOption={(input, option) => {
+                  const text = Array.isArray(option?.children) ? option.children.join('') : option?.children;
+                  return (text || '').toString().toLowerCase().includes(input.toLowerCase());
+                }}
               >
                 {filteredRts.map(rt => (
                   <Option key={rt.id} value={rt.id}>RT {rt.nomor}</Option>
