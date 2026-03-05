@@ -287,12 +287,20 @@ export default function ResidentPage() {
     ? [...columns] 
     : columns.filter(col => col.key !== 'action');
 
-  const filteredData = data.filter(item => 
-    item.nama.toLowerCase().includes(searchText.toLowerCase()) ||
-    item.nik.toLowerCase().includes(searchText.toLowerCase()) ||
-    item.family?.no_kk?.toLowerCase().includes(searchText.toLowerCase()) ||
-    item.family?.resident?.find(r => r.status_dalam_keluarga === 'kepala_keluarga')?.nama?.toLowerCase().includes(searchText.toLowerCase())
-  );
+  const filteredData = data.filter(item => {
+    const searchLower = searchText.toLowerCase();
+    const rtStr = String(item.family?.rt?.nomor || '').padStart(2, '0');
+    const rwStr = String(item.family?.rt?.rw?.nomor || '').padStart(2, '0');
+    
+    return item.nama.toLowerCase().includes(searchLower) ||
+      item.nik.toLowerCase().includes(searchLower) ||
+      item.family?.no_kk?.toLowerCase().includes(searchLower) ||
+      item.family?.resident?.find(r => r.status_dalam_keluarga === 'kepala_keluarga')?.nama?.toLowerCase().includes(searchLower) ||
+      rtStr.includes(searchLower) ||
+      rwStr.includes(searchLower) ||
+      `rt ${rtStr}`.includes(searchLower) ||
+      `rw ${rwStr}`.includes(searchLower);
+  });
 
   const exportToPDF = () => {
     const doc = new jsPDF('l', 'mm', 'a4'); // Landscape for more columns
