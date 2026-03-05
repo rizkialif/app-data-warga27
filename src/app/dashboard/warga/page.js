@@ -351,6 +351,7 @@ export default function ResidentPage() {
                   { len: 16, message: 'NIK harus 16 digit!' },
                   { pattern: /^[0-9]+$/, message: 'NIK hanya boleh berisi angka!' }
                 ]}
+                normalize={(value) => (value || '').replace(/[^0-9]/g, '')}
               >
                 <Input placeholder="16 Digit NIK" size="large" maxLength={16} />
               </Form.Item>
@@ -363,6 +364,7 @@ export default function ResidentPage() {
                   { required: true, message: 'Masukkan nama lengkap!' },
                   { pattern: /^[a-zA-Z\s]+$/, message: 'Nama hanya boleh berisi huruf dan spasi!' }
                 ]}
+                normalize={(value) => (value || '').replace(/[^a-zA-Z\s]/g, '')}
               >
                 <Input placeholder="Nama sesuai KTP" size="large" />
               </Form.Item>
