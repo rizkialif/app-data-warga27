@@ -117,6 +117,10 @@ const AppSidebar = ({ collapsed, onCollapse }) => {
       label: 'Penerimaan Zakat',
       children: [
         {
+          key: '/dashboard/zakat',
+          label: <Link href="/dashboard/zakat">Dashboard Zakat</Link>,
+        },
+        {
           key: '/dashboard/zakat/recipient',
           label: <Link href="/dashboard/zakat/recipient">List Penerima Zakat</Link>,
         },
