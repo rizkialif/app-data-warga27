@@ -408,7 +408,11 @@ export default function FamilyPage() {
                 <Form.Item
                   label="Nama Kepala Keluarga"
                   name="nama_kepala"
-                  rules={[{ required: true, message: 'Masukkan nama kepala keluarga!' }]}
+                  rules={[
+                    { required: true, message: 'Masukkan nama kepala keluarga!' },
+                    { pattern: /^[a-zA-Z\s]+$/, message: 'Nama hanya boleh berisi huruf dan spasi!' }
+                  ]}
+                  normalize={(value) => (value || '').replace(/[^a-zA-Z\s]/g, '')}
                 >
                   <Input placeholder="Nama Lengkap sesuai KTP" size="large" />
                 </Form.Item>
@@ -418,10 +422,12 @@ export default function FamilyPage() {
                   name="nik_kepala"
                   rules={[
                     { required: true, message: 'Masukkan NIK kepala keluarga!' },
-                    { len: 16, message: 'NIK harus 16 digit!' }
+                    { len: 16, message: 'NIK harus 16 digit!' },
+                    { pattern: /^[0-9]+$/, message: 'NIK hanya boleh berisi angka!' }
                   ]}
+                  normalize={(value) => (value || '').replace(/[^0-9]/g, '')}
                 >
-                  <Input placeholder="16 Digit NIK" size="large" max="16" />
+                  <Input placeholder="16 Digit NIK" size="large" maxLength={16} />
                 </Form.Item>
 
                 <Form.Item 
