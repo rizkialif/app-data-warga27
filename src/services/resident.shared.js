@@ -55,6 +55,20 @@ export const createResident = async (data) => {
     throw new Error(`Warga dengan NIK ${data.nik} sudah terdaftar dengan nama ${existingByNik.nama}`)
   }
 
+  // Cek jika mendaftar sebagai kepala_keluarga, pastikan di keluarga tersebut belum ada kepala keluarga
+  if (data.status_dalam_keluarga === 'kepala_keluarga') {
+    const existingKepala = await prisma.resident.findFirst({
+      where: {
+        family_id: Number(data.family_id),
+        status_dalam_keluarga: 'kepala_keluarga'
+      }
+    });
+
+    if (existingKepala) {
+      throw new Error(`Keluarga ini sudah memiliki Kepala Keluarga (${existingKepala.nama}). Sebuah keluarga hanya boleh memiliki satu Kepala Keluarga.`);
+    }
+  }
+
   return await prisma.resident.create({
     data: {
       nik: data.nik,
