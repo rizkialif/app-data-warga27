@@ -37,6 +37,19 @@ export default function ResidentPage() {
   const [mounted, setMounted] = useState(false);
   const { hasPermission } = require('@/hooks/usePermissions').usePermissions();
 
+  const watchTanggalLahir = Form.useWatch('tanggal_lahir', form);
+
+  useEffect(() => {
+    if (watchTanggalLahir) {
+      const birthDate = dayjs(watchTanggalLahir);
+      const today = dayjs();
+      const age = today.diff(birthDate, 'year');
+      form.setFieldsValue({ usia: `${age} Tahun` });
+    } else {
+      form.setFieldsValue({ usia: '' });
+    }
+  }, [watchTanggalLahir, form]);
+
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -104,6 +117,7 @@ export default function ResidentPage() {
         jenis_kelamin: item.jenis_kelamin,
         tempat_lahir: item.tempat_lahir,
         tanggal_lahir: item.tanggal_lahir ? dayjs(item.tanggal_lahir) : null,
+        usia: item.tanggal_lahir ? `${dayjs().diff(dayjs(item.tanggal_lahir), 'year')} Tahun` : '',
         agama: item.agama,
         pekerjaan: item.pekerjaan,
         status_perkawinan: item.status_perkawinan,
@@ -113,6 +127,7 @@ export default function ResidentPage() {
       });
     } else {
       form.resetFields();
+      form.setFieldsValue({ usia: '' });
     }
     setIsModalOpen(true);
   };
@@ -405,7 +420,7 @@ export default function ResidentPage() {
                 </Select>
               </Form.Item>
             </Col>
-            <Col span={8}>
+            <Col span={6}>
               <Form.Item
                 label="Tempat Lahir"
                 name="tempat_lahir"
@@ -413,7 +428,7 @@ export default function ResidentPage() {
                 <Input placeholder="Kota/Kab" size="large" />
               </Form.Item>
             </Col>
-            <Col span={8}>
+            <Col span={6}>
               <Form.Item
                 label="Tanggal Lahir"
                 name="tanggal_lahir"
@@ -428,6 +443,14 @@ export default function ResidentPage() {
                     return current && (current > today || current < minDate);
                   }}
                 />
+              </Form.Item>
+            </Col>
+            <Col span={4}>
+              <Form.Item
+                label="Usia"
+                name="usia"
+              >
+                <Input size="large" disabled style={{ backgroundColor: '#f5f5f5', color: '#000' }} placeholder="Otomatis" />
               </Form.Item>
             </Col>
 
