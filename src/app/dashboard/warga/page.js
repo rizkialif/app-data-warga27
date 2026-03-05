@@ -342,6 +342,7 @@ export default function ResidentPage() {
       head: [tableColumn],
       body: tableRows,
       startY: 28,
+      theme: 'grid',
       styles: { fontSize: 8 },
       headStyles: { fillColor: [22, 119, 255] }
     });
