@@ -5,6 +5,7 @@ export const getAllResidents = async () => {
     include: {
       family: {
         include: {
+          resident: true,
           rt: {
             include: {
               rw: true
@@ -27,6 +28,7 @@ export const getResidentById = async (id) => {
     include: {
       family: {
         include: {
+          resident: true,
           rt: {
             include: {
               rw: true
