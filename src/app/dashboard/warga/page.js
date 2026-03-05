@@ -38,6 +38,12 @@ export default function ResidentPage() {
   const { hasPermission } = require('@/hooks/usePermissions').usePermissions();
 
   const watchTanggalLahir = Form.useWatch('tanggal_lahir', form);
+  const watchFamilyId = Form.useWatch('family_id', form);
+
+  const selectedFamily = families.find(f => f.id === watchFamilyId);
+  const hasKepalaKeluarga = selectedFamily?.resident?.some(r => r.status_dalam_keluarga === 'kepala_keluarga');
+  const isEditingKepalaKeluarga = editingItem?.status_dalam_keluarga === 'kepala_keluarga' && editingItem?.family_id === watchFamilyId;
+  const showKepalaKeluargaOption = !hasKepalaKeluarga || isEditingKepalaKeluarga;
 
   useEffect(() => {
     if (watchTanggalLahir) {
@@ -516,7 +522,7 @@ export default function ResidentPage() {
                 rules={[{ required: true, message: 'Pilih hubungan!' }]}
               >
                 <Select size="large">
-                  <Option value="kepala_keluarga">Kepala Keluarga</Option>
+                  {showKepalaKeluargaOption && <Option value="kepala_keluarga">Kepala Keluarga</Option>}
                   <Option value="istri">Istri</Option>
                   <Option value="anak">Anak</Option>
                   <Option value="lainnya">Lainnya</Option>
