@@ -310,16 +310,21 @@ export default function ResidentPage() {
 
   const exportToPDF = () => {
     const doc = new jsPDF('l', 'mm', 'a4'); // Landscape for more columns
-    const tableColumn = ["No", "NIK", "Nama", "JK", "No. KK", "Hubungan", "Agama", "Status"];
+    const tableColumn = ["No", "NIK", "Nama", "JK", "No. KK", "Wilayah", "Hubungan", "Agama", "Status"];
     const tableRows = [];
 
     filteredData.forEach((item, index) => {
+      const rtStr = String(item.family?.rt?.nomor || '').padStart(2, '0');
+      const rwStr = String(item.family?.rt?.rw?.nomor || '').padStart(2, '0');
+      const wilayahStr = `RT ${rtStr} / RW ${rwStr}`;
+      
       const rowData = [
         index + 1,
         item.nik,
         item.nama,
         item.jenis_kelamin,
         item.family?.no_kk || '-',
+        wilayahStr,
         item.status_dalam_keluarga.replace('_', ' ').toUpperCase(),
         item.agama || '-',
         (item.status_warga || 'aktif').toUpperCase()
