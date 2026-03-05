@@ -215,6 +215,22 @@ export default function ResidentPage() {
       sorter: (a, b) => (a.family?.no_kk || '').localeCompare(b.family?.no_kk || ''),
     },
     {
+      title: 'Wilayah',
+      key: 'wilayah',
+      render: (_, record) => (
+        <div>
+          <Tag color="blue">RW {String(record.family?.rt?.rw?.nomor || '').padStart(2, '0')}</Tag>
+          <Tag color="cyan">RT {String(record.family?.rt?.nomor || '').padStart(2, '0')}</Tag>
+        </div>
+      ),
+      sorter: (a, b) => {
+        const rwA = a.family?.rt?.rw?.nomor || 0;
+        const rwB = b.family?.rt?.rw?.nomor || 0;
+        if (rwA !== rwB) return rwA - rwB;
+        return (a.family?.rt?.nomor || 0) - (b.family?.rt?.nomor || 0);
+      },
+    },
+    {
       title: 'Hubungan',
       dataIndex: 'status_dalam_keluarga',
       key: 'status_dalam_keluarga',
