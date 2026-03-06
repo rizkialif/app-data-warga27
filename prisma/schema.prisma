@@ -129,6 +129,16 @@ model refreshtoken {
   @@index([user_id], map: "RefreshToken_user_id_idx")
 }
 
+model password_reset_token {
+  id         Int      @id @default(autoincrement())
+  email      String   @db.VarChar(100)
+  token      String   @unique(map: "PasswordResetToken_token_key")
+  expires_at DateTime
+  created_at DateTime @default(now())
+
+  @@index([email], map: "PasswordResetToken_email_idx")
+}
+
 enum resident_jenis_kelamin {
   L
   P

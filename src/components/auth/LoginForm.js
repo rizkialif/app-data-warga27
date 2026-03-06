@@ -38,6 +38,10 @@ const LoginForm = ({ onFinish, loading, error }) => {
         <Input.Password prefix={<LockOutlined />} placeholder="Password" />
       </Form.Item>
 
+      <div style={{ textAlign: 'right', marginBottom: '16px' }}>
+        <a href="/forgot-password" style={{ color: '#1677ff' }}>Lupa Password?</a>
+      </div>
+
       <Form.Item>
         <Button 
           type="primary" 
