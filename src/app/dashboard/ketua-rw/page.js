@@ -112,9 +112,9 @@ export default function KetuaRwPage() {
     }
   };
 
-  const canCreate = hasPermission('action:create:rw');
-  const canUpdate = hasPermission('action:update:rw');
-  const canDelete = hasPermission('action:delete:rw');
+  const canCreate = hasPermission('action:create:ketua-rw');
+  const canUpdate = hasPermission('action:update:ketua-rw');
+  const canDelete = hasPermission('action:delete:ketua-rw');
 
   const columns = [
     {
