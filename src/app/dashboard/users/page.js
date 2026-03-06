@@ -277,7 +277,11 @@ export default function UsersPage() {
             <Form.Item
               label="Nama Lengkap"
               name="nama"
-              rules={[{ required: true, message: 'Masukkan nama lengkap!' }]}
+              rules={[
+                { required: true, message: 'Masukkan nama lengkap!' },
+                { pattern: /^[a-zA-Z\s]+$/, message: 'Nama hanya boleh berisi huruf dan spasi!' }
+              ]}
+              normalize={(value) => (value || '').replace(/[^a-zA-Z\s]/g, '')}
             >
               <Input placeholder="Contoh: Budi Santoso" size="large" />
             </Form.Item>
@@ -285,7 +289,11 @@ export default function UsersPage() {
             <Form.Item
               label="Username"
               name="username"
-              rules={[{ required: true, message: 'Masukkan username!' }]}
+              rules={[
+                { required: true, message: 'Masukkan username!' },
+                { pattern: /^[a-zA-Z0-9_\-]+$/, message: 'Username hanya boleh berisi huruf, angka, underscore (_), dan strip (-)' }
+              ]}
+              normalize={(value) => (value || '').replace(/[^a-zA-Z0-9_\-]/g, '')}
             >
               <Input placeholder="budi_rt01" size="large" disabled={!!editingItem} />
             </Form.Item>
