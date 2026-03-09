@@ -54,7 +54,7 @@ export default function LoginPage() {
 
   return (
     <AuthLayout 
-      title="Data Warga" 
+      title="CRM 027" 
       subtitle="Silakan masuk ke akun Anda" 
       icon={<LogIn size={32} />}
     >

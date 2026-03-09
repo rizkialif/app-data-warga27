@@ -18,7 +18,7 @@ const LoginForm = ({ onFinish, loading, error }) => {
     >
       {error && (
         <Form.Item>
-          <Alert title={error} type="error" showIcon closable />
+          <Alert message={error} type="error" showIcon closable />
         </Form.Item>
       )}
 
