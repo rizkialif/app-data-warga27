@@ -195,7 +195,14 @@ const AppSidebar = ({ collapsed, onCollapse }) => {
           mode="inline"
           selectedKeys={[pathname]}
           items={menuItems}
-          style={{ height: 'calc(100% - 64px)', borderRight: 0, display: 'flex', flexDirection: 'column' }}
+          style={{ 
+            height: 'calc(100vh - 64px)', 
+            borderRight: 0, 
+            display: 'flex', 
+            flexDirection: 'column',
+            overflowY: 'auto',
+            overflowX: 'hidden'
+          }}
         />
       )}
     </Sider>

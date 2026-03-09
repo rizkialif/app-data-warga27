@@ -19,8 +19,7 @@ import {
 import { EditOutlined, DeleteOutlined, FilePdfOutlined } from '@ant-design/icons';
 import api from '@/lib/api';
 import DataTable from '@/components/common/DataTable';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import { exportDataToPDF } from '@/utils/pdfExport';
 import dayjs from 'dayjs';
 
 const { Text } = Typography;
@@ -309,7 +308,6 @@ export default function ResidentPage() {
   });
 
   const exportToPDF = () => {
-    const doc = new jsPDF('l', 'mm', 'a4'); // Landscape for more columns
     const tableColumn = ["No", "NIK", "Nama", "JK", "No. KK", "Wilayah", "Hubungan", "Agama", "Status"];
     const tableRows = [];
 
@@ -332,22 +330,23 @@ export default function ResidentPage() {
       tableRows.push(rowData);
     });
 
-    doc.setFontSize(18);
-    doc.text("Data Warga", 14, 15);
-    doc.setFontSize(11);
-    doc.setTextColor(100);
-    doc.text(`Dicetak pada: ${dayjs().format('DD-MM-YYYY HH:mm')}`, 14, 22);
+    let pdfTitle = "Data Warga";
+    if (searchText && searchText.trim() !== '') {
+      if (searchText.toLowerCase().includes('rt') || searchText.toLowerCase().includes('rw')) {
+        pdfTitle = `Data Warga ${searchText.toUpperCase()}`;
+      } else {
+        pdfTitle = `Data Warga (Filter: ${searchText.toUpperCase()})`;
+      }
+    }
 
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-      startY: 28,
-      theme: 'grid',
-      styles: { fontSize: 8 },
-      headStyles: { fillColor: [22, 119, 255] }
+    exportDataToPDF({
+      filename: `data_warga_${dayjs().format('YYYYMMDD_HHmmss')}.pdf`,
+      title: pdfTitle,
+      subtitle: `Dicetak pada: ${dayjs().format('DD-MM-YYYY HH:mm')}`,
+      orientation: 'l',
+      headers: tableColumn,
+      data: tableRows
     });
-
-    doc.save(`data_warga_${dayjs().format('YYYYMMDD_HHmmss')}.pdf`);
   };
 
   if (!mounted) return null;

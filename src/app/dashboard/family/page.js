@@ -16,8 +16,7 @@ import {
 import { EditOutlined, DeleteOutlined, UserOutlined, FilePdfOutlined } from '@ant-design/icons';
 import api from '@/lib/api';
 import DataTable from '@/components/common/DataTable';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import { exportDataToPDF } from '@/utils/pdfExport';
 import dayjs from 'dayjs';
 
 const { Text } = Typography;
@@ -47,12 +46,20 @@ export default function FamilyPage() {
 
   const filteredData = data.filter(item => {
     const headModel = item.resident?.find(r => r.status_dalam_keluarga === 'kepala_keluarga');
+    const searchLower = searchText.toLowerCase();
+    const rtStr = String(item.rt?.nomor || '').padStart(2, '0');
+    const rwStr = String(item.rt?.rw?.nomor || '').padStart(2, '0');
+
     const searchString = `${item.no_kk} ${headModel?.nama || ''} ${item.alamat}`.toLowerCase();
-    return searchString.includes(searchText.toLowerCase());
+    
+    return searchString.includes(searchLower) || 
+           rtStr.includes(searchLower) || 
+           rwStr.includes(searchLower) ||
+           `rt ${rtStr}`.includes(searchLower) ||
+           `rw ${rwStr}`.includes(searchLower);
   });
 
   const exportToPDF = () => {
-    const doc = new jsPDF();
     const tableColumn = ["No", "No. KK", "Kepala Keluarga", "Alamat", "RT", "Status"];
     const tableRows = [];
 
@@ -69,21 +76,24 @@ export default function FamilyPage() {
       tableRows.push(rowData);
     });
 
-    doc.setFontSize(18);
-    doc.text("Data Kepala Keluarga", 14, 15);
-    doc.setFontSize(11);
-    doc.setTextColor(100);
-    doc.text(`Dicetak pada: ${dayjs().format('DD-MM-YYYY HH:mm')}`, 14, 22);
+    let pdfTitle = "Data Kepala Keluarga";
+    if (searchText && searchText.trim() !== '') {
+      // If the search contains 'rt' or 'rw' (case insensitive), print it nicely
+      if (searchText.toLowerCase().includes('rt') || searchText.toLowerCase().includes('rw')) {
+        pdfTitle = `Data Kepala Keluarga ${searchText.toUpperCase()}`;
+      } else {
+        pdfTitle = `Data Kepala Keluarga (Filter: ${searchText.toUpperCase()})`;
+      }
+    }
 
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-      startY: 28,
-      styles: { fontSize: 9 },
-      headStyles: { fillColor: [22, 119, 255] }
+    exportDataToPDF({
+      filename: `data_kk_${dayjs().format('YYYYMMDD_HHmmss')}.pdf`,
+      title: pdfTitle,
+      subtitle: `Dicetak pada: ${dayjs().format('DD-MM-YYYY HH:mm')}`,
+      orientation: 'p',
+      headers: tableColumn,
+      data: tableRows
     });
-
-    doc.save(`data_kk_${dayjs().format('YYYYMMDD_HHmmss')}.pdf`);
   };
 
   const fetchData = async () => {

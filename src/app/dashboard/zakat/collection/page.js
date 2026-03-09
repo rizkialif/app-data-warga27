@@ -21,8 +21,7 @@ import {
 import { EditOutlined, DeleteOutlined, WalletOutlined, ShoppingOutlined, FilePdfOutlined } from '@ant-design/icons';
 import api from '@/lib/api';
 import DataTable from '@/components/common/DataTable';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import { exportDataToPDF } from '@/utils/pdfExport';
 import dayjs from 'dayjs';
 
 const { Text } = Typography;
@@ -268,7 +267,6 @@ export default function ZakatCollectionPage() {
   );
 
   const exportToPDF = () => {
-    const doc = new jsPDF('p', 'mm', 'a4'); // Portrait
     const tableColumn = ["No", "Tanggal", "Nama Pembayar", "RT/RW", "Alamat", "Jenis", "Jumlah", "Petugas"];
     const tableRows = [];
 
@@ -304,72 +302,23 @@ export default function ZakatCollectionPage() {
     const currentYear = new Date().getFullYear();
     const hijriYear = Math.floor((currentYear - 622) * (33/32));
 
-    // Header Setup
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    const title1 = `Data Penerimaan Zakat Fitrah ${hijriYear} H`;
-    const title2 = "Masjid Baitul Mukhlishin";
-    doc.setFontSize(12);
-    const title3 = "PUP Sektor V Blok O RW 027, Babelan Bekasi Utara";
-
-    // Center alignments
-    const pageWidth = doc.internal.pageSize.getWidth();
-    doc.setFontSize(14);
-    doc.text(title1, pageWidth / 2, 15, { align: 'center' });
-    doc.text(title2, pageWidth / 2, 22, { align: 'center' });
-    
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text(title3, pageWidth / 2, 28, { align: 'center' });
-    
-    // Header divider line
-    doc.setLineWidth(0.5);
-    doc.line(14, 32, pageWidth - 14, 32);
-
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-      startY: 38,
-      styles: { fontSize: 8 },
-      headStyles: { fillColor: [22, 119, 255] },
-      margin: { bottom: 40 } // leave space for signatures at bottom of table page
+    exportDataToPDF({
+      filename: `Zakat_Fitrah_${hijriYear}H_${dayjs().format('YYYYMMDD')}.pdf`,
+      orientation: 'p',
+      headers: tableColumn,
+      data: tableRows,
+      customHeader: {
+        title1: `Data Penerimaan Zakat Fitrah ${hijriYear} H`,
+        title2: "Masjid Baitul Mukhlishin",
+        title3: "PUP Sektor V Blok O RW 027, Babelan Bekasi Utara"
+      },
+      footerText: "Penerimaan Zakat dimulai dari tanggal 13 Maret 2026 - 18 Maret 2026",
+      signatures: [
+        { role: "Ketua DKM,", name: "H. Syaifull Abbas", position: "left" },
+        { role: "Ketua RW 027,", name: "Kardi", position: "right" }
+      ],
+      signatureLocation: `Bekasi, ${dayjs().format('DD MMMM YYYY')}`
     });
-
-    const finalY = doc.lastAutoTable.finalY + 15;
-    
-    // Check if we need a new page for signatures
-    if (finalY > doc.internal.pageSize.getHeight() - 40) {
-      doc.addPage();
-      doc.setPage(doc.internal.getNumberOfPages());
-    }
-
-    const currentFinalY = doc.lastAutoTable.finalY > doc.internal.pageSize.getHeight() - 40 ? 20 : finalY;
-
-    // Date on the right
-    doc.setFontSize(10);
-    doc.text(`Bekasi, ${dayjs().format('DD MMMM YYYY')}`, pageWidth - 14, currentFinalY, { align: 'right' });
-    
-    // Signature block
-    doc.text("Ketua DKM,", 30, currentFinalY + 10, { align: 'center' });
-    doc.text("Ketua RW 027,", pageWidth - 30, currentFinalY + 10, { align: 'center' });
-    
-    // Names (giving space for physical signature)
-    doc.setFont("helvetica", "bold");
-    doc.text("H. Syaifull Abbas", 30, currentFinalY + 30, { align: 'center' });
-    doc.text("Kardi", pageWidth - 30, currentFinalY + 30, { align: 'center' });
-    doc.setFont("helvetica", "normal");
-
-    // Footer Notes
-    const pageCount = doc.internal.getNumberOfPages();
-    for(let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(9);
-      doc.setTextColor(100);
-      const footerText = "Penerimaan Zakat dimulai dari tanggal 13 Maret 2026 - 18 Maret 2026";
-      doc.text(footerText, 14, doc.internal.pageSize.getHeight() - 10);
-    }
-
-    doc.save(`Zakat_Fitrah_${hijriYear}H_${dayjs().format('YYYYMMDD')}.pdf`);
   };
 
   return (
