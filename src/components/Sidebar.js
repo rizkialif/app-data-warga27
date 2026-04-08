@@ -42,11 +42,13 @@ export default function Sidebar() {
                   : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
               }`}
             >
-              <div className="flex items-center gap-3">
-                <item.icon size={20} className={isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'} />
-                {item.name}
+              <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
+                <div className="flex-shrink-0">
+                  <item.icon size={20} className={isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'} />
+                </div>
+                <span className="whitespace-normal leading-tight break-words">{item.name}</span>
               </div>
-              <ChevronRight size={16} className={`opacity-0 group-hover:opacity-100 transition-opacity ${isActive ? 'opacity-100' : ''}`} />
+              <ChevronRight size={16} className={`flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity ${isActive ? 'opacity-100' : ''}`} />
             </Link>
           )
         })}
