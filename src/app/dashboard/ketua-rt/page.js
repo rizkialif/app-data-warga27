@@ -16,8 +16,9 @@ import {
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import api from '@/lib/api';
 import DataTable from '@/components/common/DataTable';
+import TableActions from '@/components/common/TableActions';
 
-const { Text } = Typography;
+const { Title, Text } = Typography;
 
 export default function KetuaRtPage() {
   const [data, setData] = useState([]);
@@ -192,15 +193,22 @@ export default function KetuaRtPage() {
 
   return (
     <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+        <div>
+          <Title level={4} style={{ margin: 0 }}>Data Ketua RT</Title>
+          <Text type="secondary">Kelola data nama-nama Ketua Rukun Tetangga (RT)</Text>
+        </div>
+        <TableActions
+          onSearch={setSearchText}
+          onAdd={canCreate ? () => handleOpenModal() : null}
+          addText={canCreate ? "Tambah Ketua RT" : null}
+        />
+      </div>
+
       <DataTable
-        title="Data Ketua RT"
-        subtitle="Kelola data nama-nama Ketua Rukun Tetangga (RT)"
         columns={tableColumns}
         dataSource={filteredData}
         loading={loading}
-        onSearch={setSearchText}
-        onAdd={canCreate ? () => handleOpenModal() : null}
-        addText={canCreate ? "Tambah Ketua RT" : null}
       />
 
       <Modal

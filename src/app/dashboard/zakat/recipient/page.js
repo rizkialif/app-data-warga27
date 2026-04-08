@@ -15,10 +15,11 @@ import {
 import { EditOutlined, DeleteOutlined, FilePdfOutlined } from '@ant-design/icons';
 import api from '@/lib/api';
 import DataTable from '@/components/common/DataTable';
+import TableActions from '@/components/common/TableActions';
 import { exportDataToPDF } from '@/utils/pdfExport';
 import dayjs from 'dayjs';
 
-const { Text } = Typography;
+const { Title, Text } = Typography;
 const { Option } = Select;
 
 export default function ZakatRecipientPage() {
@@ -237,24 +238,31 @@ export default function ZakatRecipientPage() {
 
   return (
     <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+        <div>
+          <Title level={4} style={{ margin: 0 }}>Daftar Penerima Zakat</Title>
+          <Text type="secondary">Kelola data warga yang berhak menerima zakat</Text>
+        </div>
+        <TableActions
+          onSearch={setSearchText}
+          onAdd={canCreate ? () => handleOpenModal() : null}
+          addText={canCreate ? "Tambah Penerima" : null}
+          extraActions={
+            <Button 
+              icon={<FilePdfOutlined />} 
+              onClick={exportToPDF}
+              style={{ borderColor: '#ff4d4f', color: '#ff4d4f' }}
+            >
+              Export PDF
+            </Button>
+          }
+        />
+      </div>
+
       <DataTable
-        title="Daftar Penerima Zakat"
-        subtitle="Kelola data warga yang berhak menerima zakat"
         columns={tableColumns}
         dataSource={filteredData}
         loading={loading}
-        onSearch={setSearchText}
-        onAdd={canCreate ? () => handleOpenModal() : null}
-        addText={canCreate ? "Tambah Penerima" : null}
-        extraActions={
-          <Button 
-            icon={<FilePdfOutlined />} 
-            onClick={exportToPDF}
-            style={{ borderColor: '#ff4d4f', color: '#ff4d4f' }}
-          >
-            Export PDF
-          </Button>
-        }
       />
 
       <Modal

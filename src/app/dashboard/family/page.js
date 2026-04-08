@@ -16,10 +16,11 @@ import {
 import { EditOutlined, DeleteOutlined, UserOutlined, FilePdfOutlined } from '@ant-design/icons';
 import api from '@/lib/api';
 import DataTable from '@/components/common/DataTable';
+import TableActions from '@/components/common/TableActions';
 import { exportDataToPDF } from '@/utils/pdfExport';
 import dayjs from 'dayjs';
 
-const { Text } = Typography;
+const { Title, Text } = Typography;
 const { Option } = Select;
 
 export default function FamilyPage() {
@@ -302,26 +303,33 @@ export default function FamilyPage() {
 
   return (
     <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+        <div>
+          <Title level={4} style={{ margin: 0 }}>Data Kepala Keluarga</Title>
+          <Text type="secondary">Kelola informasi Kartu Keluarga dan wilayah tugas</Text>
+        </div>
+        <TableActions
+          onSearch={setSearchText}
+          onAdd={canCreate ? () => handleOpenModal() : null}
+          addText={canCreate ? "Tambah KK" : null}
+          extraActions={
+            canExport ? (
+              <Button 
+                icon={<FilePdfOutlined />} 
+                onClick={exportToPDF}
+                style={{ borderColor: '#ff4d4f', color: '#ff4d4f' }}
+              >
+                Export PDF
+              </Button>
+            ) : null
+          }
+        />
+      </div>
+
       <DataTable
-        title="Data Kepala Keluarga"
-        subtitle="Kelola informasi Kartu Keluarga dan wilayah tugas"
         columns={tableColumns}
         dataSource={filteredData}
         loading={loading}
-        onSearch={setSearchText}
-        onAdd={canCreate ? () => handleOpenModal() : null}
-        addText={canCreate ? "Tambah KK" : null}
-        extraActions={
-          canExport ? (
-            <Button 
-              icon={<FilePdfOutlined />} 
-              onClick={exportToPDF}
-              style={{ borderColor: '#ff4d4f', color: '#ff4d4f' }}
-            >
-              Export PDF
-            </Button>
-          ) : null
-        }
       />
 
       <Modal

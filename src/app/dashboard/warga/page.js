@@ -14,15 +14,26 @@ import {
   Select,
   DatePicker,
   Row,
-  Col
+  Col,
+  Card,
+  Statistic
 } from 'antd';
-import { EditOutlined, DeleteOutlined, FilePdfOutlined } from '@ant-design/icons';
+import { 
+  EditOutlined, 
+  DeleteOutlined, 
+  FilePdfOutlined,
+  TeamOutlined,
+  UserOutlined,
+  SmileOutlined,
+  HeartOutlined
+} from '@ant-design/icons';
 import api from '@/lib/api';
 import DataTable from '@/components/common/DataTable';
+import TableActions from '@/components/common/TableActions';
 import { exportDataToPDF } from '@/utils/pdfExport';
 import dayjs from 'dayjs';
 
-const { Text } = Typography;
+const { Title, Text } = Typography;
 const { Option } = Select;
 
 export default function ResidentPage() {
@@ -351,28 +362,92 @@ export default function ResidentPage() {
 
   if (!mounted) return null;
 
+  const today = dayjs();
+  const getAge = (birthDate) => {
+    if (!birthDate) return 0;
+    return today.diff(dayjs(birthDate), 'year');
+  };
+
+  const stats = data.reduce((acc, item) => {
+    const age = getAge(item.tanggal_lahir);
+    if (age < 18) acc.anak += 1;
+    else if (age < 60) acc.dewasa += 1;
+    else acc.lansia += 1;
+    return acc;
+  }, { anak: 0, dewasa: 0, lansia: 0 });
+
   return (
     <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+        <div>
+          <Title level={4} style={{ margin: 0 }}>Data Warga</Title>
+          <Text type="secondary">Kelola informasi penduduk dan status kependudukan</Text>
+        </div>
+        <TableActions
+          onSearch={setSearchText}
+          onAdd={canCreate ? () => handleOpenModal() : null}
+          addText={canCreate ? "Tambah Warga" : null}
+          extraActions={
+            canExport ? (
+              <Button 
+                icon={<FilePdfOutlined />} 
+                onClick={exportToPDF}
+                style={{ borderColor: '#ff4d4f', color: '#ff4d4f' }}
+              >
+                Export PDF
+              </Button>
+            ) : null
+          }
+        />
+      </div>
+
+      <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
+        <Col xs={24} sm={12} lg={6}>
+          <Card variant="borderless" style={{ borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', borderLeft: '4px solid #1677ff' }}>
+            <Statistic 
+              title="Total Penduduk" 
+              value={data.length} 
+              prefix={<TeamOutlined style={{ color: '#1677ff' }} />} 
+              suffix="Jiwa" 
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <Card variant="borderless" style={{ borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', borderLeft: '4px solid #52c41a' }}>
+            <Statistic 
+              title="Kategori Dewasa" 
+              value={stats.dewasa} 
+              prefix={<UserOutlined style={{ color: '#52c41a' }} />} 
+              suffix="Jiwa" 
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <Card variant="borderless" style={{ borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', borderLeft: '4px solid #faad14' }}>
+            <Statistic 
+              title="Kategori Anak" 
+              value={stats.anak} 
+              prefix={<SmileOutlined style={{ color: '#faad14' }} />} 
+              suffix="Jiwa" 
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <Card variant="borderless" style={{ borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', borderLeft: '4px solid #eb2f96' }}>
+            <Statistic 
+              title="Kategori Lansia" 
+              value={stats.lansia} 
+              prefix={<HeartOutlined style={{ color: '#eb2f96' }} />} 
+              suffix="Jiwa" 
+            />
+          </Card>
+        </Col>
+      </Row>
+
       <DataTable
-        title="Data Warga"
-        subtitle="Kelola informasi penduduk dan status kependudukan"
         columns={tableColumns}
         dataSource={filteredData}
         loading={loading}
-        onSearch={setSearchText}
-        onAdd={canCreate ? () => handleOpenModal() : null}
-        addText={canCreate ? "Tambah Warga" : null}
-        extraActions={
-          canExport ? (
-            <Button 
-              icon={<FilePdfOutlined />} 
-              onClick={exportToPDF}
-              style={{ borderColor: '#ff4d4f', color: '#ff4d4f' }}
-            >
-              Export PDF
-            </Button>
-          ) : null
-        }
       />
 
       <Modal

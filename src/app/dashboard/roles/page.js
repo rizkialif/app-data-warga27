@@ -15,8 +15,9 @@ import {
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import api from '@/lib/api';
 import DataTable from '@/components/common/DataTable';
+import TableActions from '@/components/common/TableActions';
 
-const { Text } = Typography;
+const { Title, Text } = Typography;
 
 export default function RolesPage() {
   const [data, setData] = useState([]);
@@ -177,15 +178,22 @@ export default function RolesPage() {
 
   return (
     <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+        <div>
+          <Title level={4} style={{ margin: 0 }}>Master Data Roles</Title>
+          <Text type="secondary">Kelola peran pengguna dalam sistem</Text>
+        </div>
+        <TableActions
+          onSearch={setSearchText}
+          onAdd={isAdmin ? () => handleOpenModal() : null}
+          addText={isAdmin ? "Tambah Role" : null}
+        />
+      </div>
+
       <DataTable
-        title="Master Data Roles"
-        subtitle="Kelola peran pengguna dalam sistem"
         columns={tableColumns}
         dataSource={filteredData}
         loading={loading}
-        onSearch={setSearchText}
-        onAdd={isAdmin ? () => handleOpenModal() : null}
-        addText={isAdmin ? "Tambah Role" : null}
       />
 
       <Modal

@@ -15,8 +15,9 @@ import {
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import api from '@/lib/api';
 import DataTable from '@/components/common/DataTable';
+import TableActions from '@/components/common/TableActions';
 
-const { Text } = Typography;
+const { Title, Text } = Typography;
 
 export default function PermissionsPage() {
   const [data, setData] = useState([]);
@@ -177,15 +178,22 @@ export default function PermissionsPage() {
 
   return (
     <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+        <div>
+          <Title level={4} style={{ margin: 0 }}>Master Data Permissions</Title>
+          <Text type="secondary">Kelola hak akses fitur dalam aplikasi</Text>
+        </div>
+        <TableActions
+          onSearch={setSearchText}
+          onAdd={isAdmin ? () => handleOpenModal() : null}
+          addText={isAdmin ? "Tambah Izin" : null}
+        />
+      </div>
+
       <DataTable
-        title="Master Data Permissions"
-        subtitle="Kelola hak akses fitur dalam aplikasi"
         columns={tableColumns}
         dataSource={filteredData}
         loading={loading}
-        onSearch={setSearchText}
-        onAdd={isAdmin ? () => handleOpenModal() : null}
-        addText={isAdmin ? "Tambah Izin" : null}
       />
 
       <Modal

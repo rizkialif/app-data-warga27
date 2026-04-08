@@ -21,10 +21,11 @@ import {
 import { EditOutlined, DeleteOutlined, WalletOutlined, ShoppingOutlined, FilePdfOutlined } from '@ant-design/icons';
 import api from '@/lib/api';
 import DataTable from '@/components/common/DataTable';
+import TableActions from '@/components/common/TableActions';
 import { exportDataToPDF } from '@/utils/pdfExport';
 import dayjs from 'dayjs';
 
-const { Text } = Typography;
+const { Title, Text } = Typography;
 const { Option } = Select;
 
 export default function ZakatCollectionPage() {
@@ -323,6 +324,29 @@ export default function ZakatCollectionPage() {
 
   return (
     <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+        <div>
+          <Title level={4} style={{ margin: 0 }}>Data Penerimaan Zakat</Title>
+          <Text type="secondary">Kelola dan catat penerimaan zakat warga</Text>
+        </div>
+        <TableActions
+          onSearch={setSearchText}
+          onAdd={canCreate ? () => handleOpenModal() : null}
+          addText={canCreate ? "Catat Penerimaan" : null}
+          extraActions={
+            hasExportAccess ? (
+              <Button 
+                icon={<FilePdfOutlined />} 
+                onClick={exportToPDF}
+                style={{ borderColor: '#ff4d4f', color: '#ff4d4f' }}
+              >
+                Export PDF
+              </Button>
+            ) : null
+          }
+        />
+      </div>
+
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} sm={12}>
           <Card variant="borderless" style={{ borderRadius: '12px', background: 'linear-gradient(135deg, #e6f4ff 0%, #bae0ff 100%)' }}>
@@ -347,25 +371,9 @@ export default function ZakatCollectionPage() {
       </Row>
 
       <DataTable
-        title="Data Penerimaan Zakat"
-        subtitle="Kelola dan catat penerimaan zakat warga"
         columns={tableColumns}
         dataSource={filteredData}
         loading={loading}
-        onSearch={setSearchText}
-        onAdd={canCreate ? () => handleOpenModal() : null}
-        addText={canCreate ? "Catat Penerimaan" : null}
-        extraActions={
-          hasExportAccess ? (
-            <Button 
-              icon={<FilePdfOutlined />} 
-              onClick={exportToPDF}
-              style={{ borderColor: '#ff4d4f', color: '#ff4d4f' }}
-            >
-              Export PDF
-            </Button>
-          ) : null
-        }
       />
 
       <Modal

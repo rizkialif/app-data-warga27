@@ -16,8 +16,9 @@ import {
 import { EditOutlined, DeleteOutlined, UserAddOutlined } from '@ant-design/icons';
 import api from '@/lib/api';
 import DataTable from '@/components/common/DataTable';
+import TableActions from '@/components/common/TableActions';
 
-const { Text } = Typography;
+const { Title, Text } = Typography;
 const { Option } = Select;
 
 export default function UsersPage() {
@@ -246,15 +247,22 @@ export default function UsersPage() {
 
   return (
     <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+        <div>
+          <Title level={4} style={{ margin: 0 }}>Manajemen Pengguna</Title>
+          <Text type="secondary">Kelola akun pengguna, peran, dan wilayah tugas</Text>
+        </div>
+        <TableActions
+          onSearch={setSearchText}
+          onAdd={isAdmin ? () => handleOpenModal() : null}
+          addText={isAdmin ? "Tambah User" : null}
+        />
+      </div>
+
       <DataTable
-        title="Manajemen Pengguna"
-        subtitle="Kelola akun pengguna, peran, dan wilayah tugas"
         columns={tableColumns}
         dataSource={filteredData}
         loading={loading}
-        onSearch={setSearchText}
-        onAdd={isAdmin ? () => handleOpenModal() : null}
-        addText={isAdmin ? "Tambah User" : null}
       />
 
       <Modal
